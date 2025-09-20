@@ -1,5 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 class DataLoader {
   static const String _tableName = 'plans';
@@ -29,6 +32,74 @@ class DataLoader {
         ''');
       },
     );
+  }
+
+  Future<bool> savePlansToHost(hostId) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> allData = await db.query(_tableName);
+      final String jsonData = jsonEncode(allData);
+      final uri = Uri.parse('http://$hostId/upload-db');
+
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonData,
+      );
+
+      if (response.statusCode == 200) {
+        print("Database successfully uploaded to $hostId");
+        return true;
+      } else {
+        print("Failed to upload database. Status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error uploading database: $e");
+      return false;
+    }
+  }
+
+  Future<bool> loadDataFromHost(hostId) async {
+    try {
+      final uri = Uri.parse('http://$hostId/download-db');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+        for (final item in data) {
+          final date = item['date'] as String;
+          final plan = item['plan'] as String;
+          final exists = await checkIfPlanExists(DateTime.parse(date), plan);
+          if (exists) {
+            print("Plan already exists for date: $date, skipping.");
+            continue;
+          }
+          await addPlan(date: DateTime.parse(date), plan: plan);
+        }
+        print("Database successfully downloaded from $hostId");
+        return true;
+      } else {
+        print("Failed to download database. Status code: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error downloading database: $e");
+      return false;
+    }
+  }
+
+  Future<bool> checkIfPlanExists(DateTime date, String plan) async {
+    final dateKey = _formatDate(date);
+    print("Checking if plan exists: $plan for date: $dateKey");
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _tableName,
+      where: 'date = ? AND plan = ?',
+      whereArgs: [dateKey, plan],
+    );
+    return maps.isNotEmpty;
   }
 
   Future<List<String>> loadPlans(DateTime date) async {
@@ -88,6 +159,19 @@ class Cache {
   final Map<DateTime, List<String>> _cache = {};
   final DataLoader _dataLoader = DataLoader();
   static const _kMaxCacheSize = 100;
+
+  DataLoader getDataLoader() {
+    return _dataLoader;
+  }
+
+  Future<bool> loadDataFromHost(hostId) async {
+    final success =  await _dataLoader.loadDataFromHost(hostId);
+    if (success) {
+      _cache.clear();
+    }
+    return success;
+  }
+
 
   Future<List<String>> getPlans(DateTime date) async {
     final dateKey = DateTime(date.year, date.month, date.day);

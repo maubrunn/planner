@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'dayview.dart';
 import 'constants.dart';
 import 'data.dart';
+import 'settings.dart';
+
 
 
 void main() {
@@ -31,13 +34,17 @@ class MyApp extends StatelessWidget {
 class AppState extends ChangeNotifier {
   var currentDate = DateTime.now();
   final Cache cache = Cache();
+  var settings = <String, String>{};
+
 
   void changeDate(DateTime newDate) {
     currentDate = newDate;
     notifyListeners(); // Notify listeners to rebuild widgets that depend on this state
-  }
+  } 
 
-  
+  void changeSettings(BuildContext context) async {
+    settings = await openSettings(context, cache);
+  }    
 }
 
 class HomePage extends StatelessWidget {
@@ -45,7 +52,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     final screenHeight = MediaQuery.of(context).size.height;
-    final barHeight = screenHeight * 0.05;
+    final barHeight = screenHeight * 0.1;
 
     return Scaffold(
       body: Container(
@@ -62,23 +69,40 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             // Top Bar
-            SizedBox(
-              height: barHeight,
-              width: double.infinity,
-              child: Container(
+           SizedBox(
+            height: barHeight,
+            width: double.infinity,
+            child: Container(
                 color: gradientStart,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Daily Planner',
-                      style: TextStyle(color: textColor, fontSize: 24, fontStyle: FontStyle.italic, fontWeight: FontWeight.normal),
+                child: Stack(
+                alignment: Alignment.center,
+                children: [
+                    // Title in the center
+                    Positioned(
+                    left: 30,
+                    child: Text(
+                        'Daily Planner',
+                        style: TextStyle(
+                        color: textColor,
+                        fontSize: 24,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.normal,
+                        ),
                     ),
-                  ],
+                    ),
+                    // Settings button on the right
+                    Positioned(
+                        right: 20,
+                        child: IconButton(
+                            icon: Icon(Icons.settings, color: textColor),
+                            onPressed: () => openSettings(context, appState.cache), 
+                        ),
+                        ),
+                    ],
+                    ),
                 ),
-              ),
-            ),
-
+                ),
+            
             // Main content with resizable space
             Expanded(
               child: DayView(), // No need to pass currentDay

@@ -80,14 +80,16 @@ class _DayViewState extends State<DayView> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 // Day
-                Column(
+                SizedBox(
+                  width: 85,
+                  child:Column(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       "${appState.currentDate.day}",
                       style: const TextStyle(
-                        fontSize: 90,
+                        fontSize: 60,
                         fontWeight: FontWeight.bold,
                         color: textColor,
                         height: 0.9, // Adjust line height to reduce space
@@ -96,34 +98,38 @@ class _DayViewState extends State<DayView> {
                     Text(
                       dayName,
                       style: const TextStyle(
-                        fontSize: 36,
+                        fontSize: 16,
                         fontStyle: FontStyle.italic,
                         color: textColor,
                       ),
                     ),
                   ],
                 ),
+                ),
                 // Month and Year
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      monthName,
-                      style: const TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
+                SizedBox(
+                  width: 120,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        monthName,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
-                    ),
-                    Text(
-                      "${appState.currentDate.year}",
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.normal,
-                        color: textColor,
+                      Text(
+                        "${appState.currentDate.year}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          color: textColor,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
