@@ -52,7 +52,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     final screenHeight = MediaQuery.of(context).size.height;
-    final barHeight = screenHeight * 0.1;
+    final topBarHeight = screenHeight * 0.05;
+    final bottomBarHeight = screenHeight * 0.075;
 
     return Scaffold(
       body: Container(
@@ -63,42 +64,20 @@ class HomePage extends StatelessWidget {
             colors: [gradientStart, gradientEnd],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            stops: [barHeight / screenHeight, 1 - barHeight / screenHeight],
+            stops: [topBarHeight / screenHeight, 1 - bottomBarHeight / screenHeight],
           ),
         ),
         child: Column(
           children: [
             // Top Bar
            SizedBox(
-            height: barHeight,
+            height: topBarHeight,
             width: double.infinity,
             child: Container(
                 color: gradientStart,
                 child: Stack(
                 alignment: Alignment.center,
-                children: [
-                    // Title in the center
-                    Positioned(
-                    left: 30,
-                    child: Text(
-                        'Daily Planner',
-                        style: TextStyle(
-                        color: textColor,
-                        fontSize: 24,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.normal,
-                        ),
-                    ),
-                    ),
-                    // Settings button on the right
-                    Positioned(
-                        right: 20,
-                        child: IconButton(
-                            icon: Icon(Icons.settings, color: textColor),
-                            onPressed: () => openSettings(context, appState.cache), 
-                        ),
-                        ),
-                    ],
+                children: [],
                     ),
                 ),
                 ),
@@ -110,7 +89,7 @@ class HomePage extends StatelessWidget {
 
             // Navbar with dynamic height and button
             SizedBox(
-              height: barHeight,
+              height: bottomBarHeight,
               child: Container(
                 color: gradientEnd,
                 child: Row(
@@ -124,13 +103,10 @@ class HomePage extends StatelessWidget {
                         appState.changeDate(appState.currentDate.subtract(const Duration(days: 1)));
                       },
                     ),
-                    
                     IconButton(
-                        icon: const Icon(Icons.swipe_down_alt, color: textColor),
-                        onPressed: () {
-                        appState.changeDate(DateTime.now());
-                        },
-                    ),
+                            icon: Icon(Icons.settings, color: textColor),
+                            onPressed: () => openSettings(context, appState.cache), 
+                        ),
                     IconButton(
                         icon: const Icon(Icons.calendar_today, color: textColor),
                         onPressed: () async {

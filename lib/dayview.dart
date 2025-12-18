@@ -29,38 +29,38 @@ class _DayViewState extends State<DayView> {
 
   Future<void> _loadPlans() async {
     final appState = context.read<AppState>(); // Access AppState
-    
+
     setState(() {
       loaded = false; // Show loading indicator
     });
-    
+
     final plansFromCache = await appState.cache.getPlans(appState.currentDate);
 
     setState(() {
       plans = plansFromCache;
-      loaded = true; 
+      loaded = true;
     });
   }
 
-    void __deletePlan(String plan) async {
-        print("Deleting plan: $plan");
-        final appState = context.read<AppState>();
-        appState.cache.deletePlan(appState.currentDate, plan);
-        final updatedPlans = await appState.cache.getPlans(appState.currentDate);
-        setState(() {
-            plans = updatedPlans;
-        });
-    }
+  void __deletePlan(String plan) async {
+    print("Deleting plan: $plan");
+    final appState = context.read<AppState>();
+    appState.cache.deletePlan(appState.currentDate, plan);
+    final updatedPlans = await appState.cache.getPlans(appState.currentDate);
+    setState(() {
+      plans = updatedPlans;
+    });
+  }
 
-    void _addPlan(String plan, int index) async {
-        print("Adding plan: $plan at index: $index");
-        final appState = context.read<AppState>();
-        appState.cache.addPlan(appState.currentDate, plan, cacheIndex: index);
-        final updatedPlans = await appState.cache.getPlans(appState.currentDate);
-        setState(() {
-            plans = updatedPlans; 
-        });
-    }
+  void _addPlan(String plan, int index) async {
+    print("Adding plan: $plan at index: $index");
+    final appState = context.read<AppState>();
+    appState.cache.addPlan(appState.currentDate, plan, cacheIndex: index);
+    final updatedPlans = await appState.cache.getPlans(appState.currentDate);
+    setState(() {
+      plans = updatedPlans;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,41 +81,41 @@ class _DayViewState extends State<DayView> {
               children: [
                 // Day
                 SizedBox(
-                  width: 85,
-                  child:Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "${appState.currentDate.day}",
-                      style: const TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
-                        height: 0.9, // Adjust line height to reduce space
+                  width: 120,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${appState.currentDate.day}",
+                        style: const TextStyle(
+                          fontSize: 60,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                          height: 0.9, // Adjust line height to reduce space
+                        ),
                       ),
-                    ),
-                    Text(
-                      dayName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                        color: textColor,
+                      Text(
+                        dayName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: textColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 ),
                 // Month and Year
                 SizedBox(
-                  width: 120,
+                  width: 150,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         monthName,
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: textColor,
                         ),
@@ -123,7 +123,7 @@ class _DayViewState extends State<DayView> {
                       Text(
                         "${appState.currentDate.year}",
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 16,
                           fontWeight: FontWeight.normal,
                           color: textColor,
                         ),
@@ -148,7 +148,7 @@ class _DayViewState extends State<DayView> {
               child: PlanItem(
                 title: "",
                 onSaved: (String newPlan) {
-                    _addPlan(newPlan, -1); // Add new plan
+                  _addPlan(newPlan, -1); // Add new plan
                 },
                 onDelete: (String plan) {},
               ),
@@ -164,16 +164,17 @@ class _DayViewState extends State<DayView> {
                       return PlanItem(
                         title: plans[index],
                         onSaved: (String newPlan) {
-                            _addPlan(newPlan, index); // Update existing plan
+                          _addPlan(newPlan, index); // Update existing plan
                         },
                         onDelete: (String plan) {
-                            __deletePlan(plan); // Delete plan
+                          __deletePlan(plan); // Delete plan
                         },
                       );
                     },
                   )
                 : const Center(
-                    child: CircularProgressIndicator(), // Show loading indicator
+                    child:
+                        CircularProgressIndicator(), // Show loading indicator
                   ),
           ),
         ],
@@ -187,7 +188,11 @@ class PlanItem extends StatefulWidget {
   final ValueChanged<String> onSaved;
   final ValueChanged<String> onDelete;
 
-  const PlanItem({required this.title, required this.onSaved, required this.onDelete, super.key});
+  const PlanItem(
+      {required this.title,
+      required this.onSaved,
+      required this.onDelete,
+      super.key});
 
   @override
   _PlanItemState createState() => _PlanItemState();
@@ -239,13 +244,16 @@ class _PlanItemState extends State<PlanItem> {
                 hintText: "Add a new plan",
                 hintStyle: TextStyle(
                   color: textColor,
-                  fontSize: 24,
+                  fontSize: 18,
                 ),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: textColor), // Line color when not focused
+                  borderSide: BorderSide(
+                      color: textColor), // Line color when not focused
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.purple, width: 2.0), // Line color when focused
+                  borderSide: BorderSide(
+                      color: Colors.purple,
+                      width: 2.0), // Line color when focused
                 ),
               ),
               onFieldSubmitted: _handleSubmit,
@@ -253,7 +261,7 @@ class _PlanItemState extends State<PlanItem> {
                 return null;
               },
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: textColor,
               ),
@@ -265,11 +273,11 @@ class _PlanItemState extends State<PlanItem> {
           if (widget.title.isNotEmpty)
             IconButton(
               icon: Icon(Icons.delete, color: textColor),
-              onPressed: () => widget.onDelete(widget.title), // Call the delete function
+              onPressed: () =>
+                  widget.onDelete(widget.title), // Call the delete function
             ),
         ],
       ),
     );
   }
 }
-

@@ -34,7 +34,7 @@ class DataLoader {
     );
   }
 
-  Future<bool> savePlansToHost(hostId) async {
+  Future<Map<String, dynamic>> savePlansToHost(String hostId) async {
     try {
       final db = await database;
       final List<Map<String, dynamic>> allData = await db.query(_tableName);
@@ -49,19 +49,19 @@ class DataLoader {
 
       if (response.statusCode == 200) {
         print("Database successfully uploaded to $hostId");
-        return true;
+        return {"success": true, "message": ""};
       } else {
         print("Failed to upload database. Status code: ${response.statusCode}");
         print("Response body: ${response.body}");
-        return false;
+        return {"success": false, "message": response.body};
       }
     } catch (e) {
       print("Error uploading database: $e");
-      return false;
+      return {"success": false, "message": e.toString()};
     }
   }
 
-  Future<bool> loadDataFromHost(hostId) async {
+  Future<Map<String, dynamic>> loadDataFromHost(String hostId) async {
     try {
       final uri = Uri.parse('http://$hostId/download-db');
       final response = await http.get(uri);
@@ -79,14 +79,14 @@ class DataLoader {
           await addPlan(date: DateTime.parse(date), plan: plan);
         }
         print("Database successfully downloaded from $hostId");
-        return true;
+        return {"success": true, "message": ""};
       } else {
         print("Failed to download database. Status code: ${response.statusCode}");
-        return false;
+        return {"success": false, "message": response.body};
       }
     } catch (e) {
       print("Error downloading database: $e");
-      return false;
+      return {"success": false, "message": e.toString()};
     }
   }
 
@@ -166,10 +166,10 @@ class Cache {
 
   Future<bool> loadDataFromHost(hostId) async {
     final success =  await _dataLoader.loadDataFromHost(hostId);
-    if (success) {
+    if (success.containsKey("success") && success["success"] == true) {
       _cache.clear();
     }
-    return success;
+    return success["success"] ?? false;
   }
 
 
