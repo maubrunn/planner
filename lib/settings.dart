@@ -15,7 +15,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final Map<String, TextEditingController> _controllers = {
-    'host-ip': TextEditingController(text: 'planner.trailsign.xyz'),
+    'host-ip': TextEditingController(text: 'localhost:5050'),
     // 'port': TextEditingController(text: '5000'),
   };
   bool loading = false;
