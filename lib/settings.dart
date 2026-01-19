@@ -15,8 +15,8 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final Map<String, TextEditingController> _controllers = {
-    'host-ip': TextEditingController(text: 'localhost:5050'),
-    // 'port': TextEditingController(text: '5000'),
+    'host-ip': TextEditingController(text: ''),
+    'api-key': TextEditingController(text: ''),
   };
   bool loading = false;
   bool success = true;
@@ -38,8 +38,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _getHost() {
     final ip = _controllers['host-ip']?.text;
-    // final port = _controllers['port']?.text;
     return '$ip';
+  }
+
+  String _getApiKey() {
+    final apiKey = _controllers['api-key']?.text;
+    return apiKey ?? '';
   }
 
   void _uploadData() async {
@@ -50,13 +54,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
     bool resp = false;
     final host = _getHost();
+    final apiKey = _getApiKey();
 
     if (host.isEmpty) {
       print("Host ID is empty. Cannot upload data.");
       return;
     } else {
       print("Uploading data to host: $host");
-      final response = await widget.cache.getDataLoader().savePlansToHost(host);
+      final response = await widget.cache.getDataLoader().savePlansToHost(host, apiKey);
       resp = response["success"] ?? false;
       errorMessage = response["message"] ?? "";
     }
@@ -80,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     } else {
       print("Downloading data from host: $host");
-      resp = await widget.cache.loadDataFromHost(host);
+      resp = await widget.cache.loadDataFromHost(host, _getApiKey());
     }
 
     setState(() {

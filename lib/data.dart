@@ -34,16 +34,16 @@ class DataLoader {
     );
   }
 
-  Future<Map<String, dynamic>> savePlansToHost(String hostId) async {
+  Future<Map<String, dynamic>> savePlansToHost(String hostId, String apiKey) async {
     try {
       final db = await database;
       final List<Map<String, dynamic>> allData = await db.query(_tableName);
       final String jsonData = jsonEncode(allData);
-      final uri = Uri.parse('http://$hostId/upload-db');
+      final uri = Uri.parse('https://$hostId/upload-db');
 
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'X-API-KEY': apiKey},
         body: jsonData,
       );
 
@@ -61,10 +61,10 @@ class DataLoader {
     }
   }
 
-  Future<Map<String, dynamic>> loadDataFromHost(String hostId) async {
+  Future<Map<String, dynamic>> loadDataFromHost(String hostId, String apiKey) async {
     try {
-      final uri = Uri.parse('http://$hostId/download-db');
-      final response = await http.get(uri);
+      final uri = Uri.parse('https://$hostId/download-db');
+      final response = await http.get(uri, headers: {'X-API-KEY': apiKey});
 
       if (response.statusCode == 200) {
         final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(jsonDecode(response.body));
@@ -164,8 +164,8 @@ class Cache {
     return _dataLoader;
   }
 
-  Future<bool> loadDataFromHost(hostId) async {
-    final success =  await _dataLoader.loadDataFromHost(hostId);
+  Future<bool>  loadDataFromHost(String hostId, String apiKey) async {
+    final success =  await _dataLoader.loadDataFromHost(hostId, apiKey);
     if (success.containsKey("success") && success["success"] == true) {
       _cache.clear();
     }
